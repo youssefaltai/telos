@@ -52,10 +52,32 @@ describe('writeProject', () => {
     assert.ok(!content.includes('CONSTITUTION.md'));
   });
 
+  it('writes .claude/agents/meta-agent.md with frontmatter', () => {
+    writeProject(tmpDir, '# INTENT\n\nTest intent');
+
+    const metaAgent = path.join(tmpDir, '.claude', 'agents', 'meta-agent.md');
+    assert.ok(fs.existsSync(metaAgent));
+
+    const content = fs.readFileSync(metaAgent, 'utf8');
+    assert.ok(content.startsWith('---'));
+    assert.ok(content.includes('name: meta-agent'));
+    assert.ok(content.includes('description:'));
+    assert.ok(content.includes('tools:'));
+  });
+
   it('copies template gitignore as .gitignore', () => {
     writeProject(tmpDir, '# INTENT');
 
     const content = fs.readFileSync(path.join(tmpDir, '.gitignore'), 'utf8');
     assert.ok(content.includes('checkpoints/*.md'));
+  });
+
+  it('writes .gitignore without references to removed directories', () => {
+    writeProject(tmpDir, '# INTENT');
+
+    const content = fs.readFileSync(path.join(tmpDir, '.gitignore'), 'utf8');
+    assert.ok(content.includes('.DS_Store'));
+    assert.ok(!content.includes('checkpoints'));
+    assert.ok(!content.includes('logs/*.md'));
   });
 });
