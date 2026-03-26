@@ -35,19 +35,24 @@ Every layer is agent-owned. Only the top is human-owned.
 
 ## Getting Started
 
-### 1. Define your intent
+### 1. Create your project
 
-Edit `INTENT.md`. Be as high-level as you want. The agents will ask if they need more.
+```bash
+mkdir my-project && cd my-project
+npx agentix init
+```
 
-### 2. Run the bootstrap
+The CLI asks what you're building, what success looks like, and what's out of scope. It writes all the framework files with your intent baked in.
 
-In Claude Code (or any Claude interface):
+### 2. Bootstrap the agents
+
+Open Claude Code and say:
 
 ```
 Read CLAUDE.md and begin.
 ```
 
-The Bootstrap Meta-Agent will design your agent topology automatically.
+The Bootstrap Meta-Agent reads your intent and designs the optimal agent topology for your goal.
 
 ### 3. Give the first task
 
