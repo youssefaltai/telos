@@ -21,5 +21,8 @@
     "scaffold",
     "cli"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@clack/prompts": "^1.1.0"
+  }
 }

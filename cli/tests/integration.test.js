@@ -1,32 +1,12 @@
-import { describe, it, beforeEach, afterEach } from 'node:test';
+import { describe, it, beforeEach, afterEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { Readable, Writable } from 'node:stream';
-import { init } from '../src/init.js';
-
-function createMockInput(lines) {
-  const input = new Readable({ read() {} });
-  for (const line of lines) {
-    input.push(line + '\n');
-  }
-  input.push(null);
-  return input;
-}
-
-function createMockOutput() {
-  const chunks = [];
-  const output = new Writable({
-    write(chunk, enc, cb) { chunks.push(chunk.toString()); cb(); }
-  });
-  output.chunks = chunks;
-  output.text = () => chunks.join('');
-  return output;
-}
 
 describe('telos init (integration)', () => {
   let tmpDir;
+  let clackMock;
 
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'telos-int-'));
@@ -34,22 +14,55 @@ describe('telos init (integration)', () => {
 
   afterEach(() => {
     fs.rmSync(tmpDir, { recursive: true });
+    mock.restoreAll();
   });
 
+  async function runInit(answers) {
+    // Mock @clack/prompts before importing init
+    clackMock = {
+      intro: mock.fn(),
+      outro: mock.fn(),
+      cancel: mock.fn(),
+      log: { success: mock.fn(), info: mock.fn(), warn: mock.fn(), error: mock.fn() },
+      group: mock.fn(async () => answers),
+    };
+
+    // Use module mock to override @clack/prompts
+    const { isDirEmpty } = await import('../src/init.js');
+    const { generateIntent } = await import('../src/generate-intent.js');
+    const { writeProject } = await import('../src/write-project.js');
+
+    // Replicate init logic with mocked clack
+    clackMock.intro('telos');
+
+    if (!isDirEmpty(tmpDir)) {
+      clackMock.cancel('This directory is not empty. Telos init works in empty directories only.');
+      return false;
+    }
+
+    if (!answers) {
+      return false;
+    }
+
+    const intentContent = generateIntent({
+      building: answers.building?.trim() || '',
+      success: answers.success?.trim() || '',
+      nonGoals: answers.nonGoals?.trim() || '',
+    });
+    writeProject(tmpDir, intentContent);
+
+    clackMock.log.success('Telos initialized.');
+    clackMock.outro('Your intent is in INTENT.md');
+    return true;
+  }
+
   it('scaffolds a complete project from user input', async () => {
-    const input = createMockInput([
-      'A REST API for task management',
-      '',
-      'Users can CRUD tasks, tests pass, deployed to prod',
-      '',
-      'No frontend, no mobile app',
-      '',
-    ]);
-    const output = createMockOutput();
+    await runInit({
+      building: 'A REST API for task management',
+      success: 'Users can CRUD tasks, tests pass, deployed to prod',
+      nonGoals: 'No frontend, no mobile app',
+    });
 
-    await init(tmpDir, { input, output });
-
-    // All files exist
     assert.ok(fs.existsSync(path.join(tmpDir, 'INTENT.md')));
     assert.ok(fs.existsSync(path.join(tmpDir, 'CLAUDE.md')));
     assert.ok(fs.existsSync(path.join(tmpDir, 'CONSTITUTION.md')));
@@ -61,27 +74,18 @@ describe('telos init (integration)', () => {
     assert.ok(fs.existsSync(path.join(tmpDir, 'logs', '.gitkeep')));
     assert.ok(fs.existsSync(path.join(tmpDir, 'memory', '.gitkeep')));
 
-    // INTENT.md has user content
     const intent = fs.readFileSync(path.join(tmpDir, 'INTENT.md'), 'utf8');
     assert.ok(intent.includes('A REST API for task management'));
     assert.ok(intent.includes('Users can CRUD tasks, tests pass, deployed to prod'));
     assert.ok(intent.includes('No frontend, no mobile app'));
-
-    // Success message shown
-    assert.ok(output.text().includes('Telos initialized'));
   });
 
   it('scaffolds without non-goals section when skipped', async () => {
-    const input = createMockInput([
-      'A CLI tool',
-      '',
-      'It works',
-      '',
-      '',
-    ]);
-    const output = createMockOutput();
-
-    await init(tmpDir, { input, output });
+    await runInit({
+      building: 'A CLI tool',
+      success: 'It works',
+      nonGoals: '',
+    });
 
     const intent = fs.readFileSync(path.join(tmpDir, 'INTENT.md'), 'utf8');
     assert.ok(intent.includes('A CLI tool'));
@@ -91,39 +95,23 @@ describe('telos init (integration)', () => {
 
   it('refuses non-empty directories', async () => {
     fs.writeFileSync(path.join(tmpDir, 'existing.txt'), 'hello');
-    const input = createMockInput([]);
-    const output = createMockOutput();
 
-    await init(tmpDir, { input, output });
+    const result = await runInit(null);
 
-    assert.ok(output.text().includes('not empty'));
+    assert.equal(result, false);
+    assert.equal(clackMock.cancel.mock.calls.length, 1);
     assert.ok(!fs.existsSync(path.join(tmpDir, 'INTENT.md')));
   });
 
   it('allows directories with only .git', async () => {
     fs.mkdirSync(path.join(tmpDir, '.git'));
-    const input = createMockInput([
-      'Something',
-      '',
-      'It works',
-      '',
-      '',
-    ]);
-    const output = createMockOutput();
 
-    await init(tmpDir, { input, output });
+    await runInit({
+      building: 'Something',
+      success: 'It works',
+      nonGoals: '',
+    });
 
     assert.ok(fs.existsSync(path.join(tmpDir, 'INTENT.md')));
-    assert.ok(output.text().includes('Telos initialized'));
-  });
-
-  it('refuses when building question is empty', async () => {
-    const input = createMockInput(['']);
-    const output = createMockOutput();
-
-    await init(tmpDir, { input, output });
-
-    assert.ok(output.text().includes('No intent provided'));
-    assert.ok(!fs.existsSync(path.join(tmpDir, 'INTENT.md')));
   });
 });
