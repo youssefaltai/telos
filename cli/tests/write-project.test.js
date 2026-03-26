@@ -40,6 +40,18 @@ describe('writeProject', () => {
     assert.equal(written, intentContent);
   });
 
+  it('writes CLAUDE.md with orchestrator activation and universal rules', () => {
+    writeProject(tmpDir, '# INTENT\n\nTest intent');
+
+    const content = fs.readFileSync(path.join(tmpDir, 'CLAUDE.md'), 'utf8');
+    assert.ok(content.includes('You are operating in the Telos framework'));
+    assert.ok(content.includes('## Universal Rules'));
+    assert.ok(content.includes('dispatch the meta-agent'));
+    assert.ok(content.includes('you are the Orchestrator'));
+    assert.ok(!content.includes('Bootstrap Meta-Agent'));
+    assert.ok(!content.includes('CONSTITUTION.md'));
+  });
+
   it('copies template gitignore as .gitignore', () => {
     writeProject(tmpDir, '# INTENT');
 
