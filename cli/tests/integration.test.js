@@ -56,22 +56,37 @@ describe('telos init (integration)', () => {
     return true;
   }
 
-  it('scaffolds a complete project from user input', async () => {
+  it('scaffolds a complete v2 project from user input', async () => {
     await runInit({
       building: 'A REST API for task management',
       success: 'Users can CRUD tasks, tests pass, deployed to prod',
       nonGoals: 'No frontend, no mobile app',
     });
 
+    // v2 files exist
     assert.ok(fs.existsSync(path.join(tmpDir, 'INTENT.md')));
     assert.ok(fs.existsSync(path.join(tmpDir, 'CLAUDE.md')));
-    assert.ok(fs.existsSync(path.join(tmpDir, '.claude', 'agents', 'meta-agent.md')));
     assert.ok(fs.existsSync(path.join(tmpDir, '.gitignore')));
+    assert.ok(fs.existsSync(path.join(tmpDir, '.claude', 'agents', 'meta-agent.md')));
 
+    // v1 files do not exist
+    assert.ok(!fs.existsSync(path.join(tmpDir, 'CONSTITUTION.md')));
+    assert.ok(!fs.existsSync(path.join(tmpDir, 'PHILOSOPHY.md')));
+    assert.ok(!fs.existsSync(path.join(tmpDir, 'agents', 'core.md')));
+    assert.ok(!fs.existsSync(path.join(tmpDir, 'bootstrap', 'meta-agent.md')));
+
+    // INTENT.md has correct content
     const intent = fs.readFileSync(path.join(tmpDir, 'INTENT.md'), 'utf8');
     assert.ok(intent.includes('A REST API for task management'));
     assert.ok(intent.includes('Users can CRUD tasks, tests pass, deployed to prod'));
     assert.ok(intent.includes('No frontend, no mobile app'));
+
+    // Meta-agent has frontmatter
+    const metaAgent = fs.readFileSync(
+      path.join(tmpDir, '.claude', 'agents', 'meta-agent.md'),
+      'utf8',
+    );
+    assert.ok(metaAgent.includes('name: meta-agent'));
   });
 
   it('scaffolds without non-goals section when skipped', async () => {
