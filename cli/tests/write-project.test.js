@@ -16,20 +16,23 @@ describe('writeProject', () => {
     fs.rmSync(tmpDir, { recursive: true });
   });
 
-  it('writes all framework files to the target directory', () => {
-    const intentContent = '# INTENT\n\nTest intent';
-    writeProject(tmpDir, intentContent);
+  it('writes the v2 file structure', () => {
+    writeProject(tmpDir, '# INTENT\n\nTest intent');
 
+    // Files that should exist
     assert.ok(fs.existsSync(path.join(tmpDir, 'INTENT.md')));
     assert.ok(fs.existsSync(path.join(tmpDir, 'CLAUDE.md')));
-    assert.ok(fs.existsSync(path.join(tmpDir, 'CONSTITUTION.md')));
-    assert.ok(fs.existsSync(path.join(tmpDir, 'PHILOSOPHY.md')));
     assert.ok(fs.existsSync(path.join(tmpDir, '.gitignore')));
-    assert.ok(fs.existsSync(path.join(tmpDir, 'bootstrap', 'meta-agent.md')));
-    assert.ok(fs.existsSync(path.join(tmpDir, 'agents', 'core.md')));
-    assert.ok(fs.existsSync(path.join(tmpDir, 'checkpoints', '.gitkeep')));
-    assert.ok(fs.existsSync(path.join(tmpDir, 'logs', '.gitkeep')));
-    assert.ok(fs.existsSync(path.join(tmpDir, 'memory', '.gitkeep')));
+    assert.ok(fs.existsSync(path.join(tmpDir, '.claude', 'agents', 'meta-agent.md')));
+
+    // Files that should NOT exist
+    assert.ok(!fs.existsSync(path.join(tmpDir, 'CONSTITUTION.md')));
+    assert.ok(!fs.existsSync(path.join(tmpDir, 'PHILOSOPHY.md')));
+    assert.ok(!fs.existsSync(path.join(tmpDir, 'bootstrap', 'meta-agent.md')));
+    assert.ok(!fs.existsSync(path.join(tmpDir, 'agents', 'core.md')));
+    assert.ok(!fs.existsSync(path.join(tmpDir, 'checkpoints', '.gitkeep')));
+    assert.ok(!fs.existsSync(path.join(tmpDir, 'logs', '.gitkeep')));
+    assert.ok(!fs.existsSync(path.join(tmpDir, 'memory', '.gitkeep')));
   });
 
   it('writes the provided intent content to INTENT.md', () => {
@@ -63,13 +66,6 @@ describe('writeProject', () => {
     assert.ok(content.includes('name: meta-agent'));
     assert.ok(content.includes('description:'));
     assert.ok(content.includes('tools:'));
-  });
-
-  it('copies template gitignore as .gitignore', () => {
-    writeProject(tmpDir, '# INTENT');
-
-    const content = fs.readFileSync(path.join(tmpDir, '.gitignore'), 'utf8');
-    assert.ok(content.includes('checkpoints/*.md'));
   });
 
   it('writes .gitignore without references to removed directories', () => {
