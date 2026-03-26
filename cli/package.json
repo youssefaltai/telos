@@ -1,5 +1,5 @@
 {
-  "name": "telos",
+  "name": "@youssefaltai/telos",
   "version": "1.0.0",
   "description": "Scaffold a Telos project — intent-driven recursive agentic development",
   "type": "module",
