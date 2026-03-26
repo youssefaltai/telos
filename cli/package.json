@@ -1,0 +1,19 @@
+{
+  "name": "agentix",
+  "version": "0.1.0",
+  "description": "Scaffold an Agentix project — intent-driven recursive agentic development",
+  "type": "module",
+  "bin": {
+    "agentix": "./bin/agentix.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "templates/"
+  ],
+  "keywords": ["agentix", "agents", "ai", "scaffold", "cli"],
+  "license": "MIT"
+}
