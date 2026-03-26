@@ -1,4 +1,4 @@
-# Agentix
+# Telos
 
 > A minimal framework for fully recursive, intent-driven agentic development.
 > You define the goal. Agents define everything else.
@@ -39,7 +39,7 @@ Every layer is agent-owned. Only the top is human-owned.
 
 ```bash
 mkdir my-project && cd my-project
-npx agentix init
+npx telos init
 ```
 
 The CLI asks what you're building, what success looks like, and what's out of scope. It writes all the framework files with your intent baked in.
@@ -69,7 +69,7 @@ The Orchestrator routes to the right agents. You only get interrupted when it ge
 ## Directory Structure
 
 ```
-agentix/
+telos/
 ├── INTENT.md          # YOU write this. Agents read it. No one modifies it.
 ├── CONSTITUTION.md    # Invariant rules. Applies to every agent at every level.
 ├── CLAUDE.md          # Entry point for Claude Code. First thing Claude reads.

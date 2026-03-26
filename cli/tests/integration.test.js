@@ -25,11 +25,11 @@ function createMockOutput() {
   return output;
 }
 
-describe('agentix init (integration)', () => {
+describe('telos init (integration)', () => {
   let tmpDir;
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agentix-int-'));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'telos-int-'));
   });
 
   afterEach(() => {
@@ -68,7 +68,7 @@ describe('agentix init (integration)', () => {
     assert.ok(intent.includes('No frontend, no mobile app'));
 
     // Success message shown
-    assert.ok(output.text().includes('Agentix initialized'));
+    assert.ok(output.text().includes('Telos initialized'));
   });
 
   it('scaffolds without non-goals section when skipped', async () => {
@@ -114,7 +114,7 @@ describe('agentix init (integration)', () => {
     await init(tmpDir, { input, output });
 
     assert.ok(fs.existsSync(path.join(tmpDir, 'INTENT.md')));
-    assert.ok(output.text().includes('Agentix initialized'));
+    assert.ok(output.text().includes('Telos initialized'));
   });
 
   it('refuses when building question is empty', async () => {

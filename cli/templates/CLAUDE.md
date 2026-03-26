@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-> You are operating inside the Agentix framework.
+> You are operating inside the Telos framework.
 > Before doing anything else, read INTENT.md and CONSTITUTION.md.
 > Those two files define what you can and cannot do. Everything else is up to you.
 

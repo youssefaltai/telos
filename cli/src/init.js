@@ -13,11 +13,11 @@ export async function init(targetDir, { input, output } = {}) {
   const inp = input || process.stdin;
   const out = output || process.stdout;
 
-  out.write('\n  agentix\n\n');
+  out.write('\n  telos\n\n');
 
   // Guard: directory must be empty
   if (!isDirEmpty(targetDir)) {
-    out.write('  This directory is not empty. Agentix init works in empty directories only.\n');
+    out.write('  This directory is not empty. Telos init works in empty directories only.\n');
     return false;
   }
 
@@ -35,14 +35,14 @@ export async function init(targetDir, { input, output } = {}) {
   // Question 1: What are you building? (required)
   const building = await ask('What are you building?', opts);
   if (!building) {
-    out.write('  No intent provided. Run agentix init again when you\'re ready.\n');
+    out.write('  No intent provided. Run telos init again when you\'re ready.\n');
     return false;
   }
 
   // Question 2: What does success look like? (required)
   const success = await ask('What does success look like?', opts);
   if (!success) {
-    out.write('  No success criteria provided. Run agentix init again when you\'re ready.\n');
+    out.write('  No success criteria provided. Run telos init again when you\'re ready.\n');
     return false;
   }
 
@@ -53,7 +53,7 @@ export async function init(targetDir, { input, output } = {}) {
   const intentContent = generateIntent({ building, success, nonGoals });
   writeProject(targetDir, intentContent);
 
-  out.write('\n  \u2713 Agentix initialized.\n\n');
+  out.write('\n  \u2713 Telos initialized.\n\n');
   out.write('  Your intent is in INTENT.md \u2014 edit it anytime.\n');
   out.write('  Open Claude Code and say: Read CLAUDE.md and begin.\n\n');
 

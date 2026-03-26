@@ -9,7 +9,7 @@ describe('isDirEmpty', () => {
   let tmpDir;
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agentix-test-'));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'telos-test-'));
   });
 
   afterEach(() => {

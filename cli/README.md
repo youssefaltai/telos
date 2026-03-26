@@ -1,12 +1,12 @@
-# agentix
+# telos
 
-Scaffold an [Agentix](https://github.com/youssefaltai/agentix) project.
+Scaffold a [Telos](https://github.com/youssefaltai/telos) project.
 
 ## Usage
 
 ```bash
 mkdir my-project && cd my-project
-npx agentix init
+npx telos init
 ```
 
 The CLI asks what you're building, writes the framework files, and tells you how to start.
