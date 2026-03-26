@@ -7,8 +7,9 @@ import { createInterface } from 'node:readline';
  *   input   - Readable stream (default: process.stdin)
  *   output  - Writable stream (default: process.stdout)
  *   lines   - string[] queue; if provided, consume from it instead of the stream
+ *   rl      - shared readline interface; if provided, reuse it instead of creating one
  */
-export async function ask(question, { input = process.stdin, output = process.stdout, lines } = {}) {
+export async function ask(question, { input = process.stdin, output = process.stdout, lines, rl: sharedRl } = {}) {
   output.write(`  ${question}\n`);
   output.write('  (Empty line to finish)\n\n');
   output.write('  > ');
@@ -16,7 +17,7 @@ export async function ask(question, { input = process.stdin, output = process.st
   const result = [];
 
   if (lines) {
-    // Consume from pre-buffered line queue
+    // Consume from pre-buffered line queue (test/pipe mode)
     while (lines.length > 0) {
       const raw = lines.shift();
       const line = raw.trim();
@@ -25,8 +26,8 @@ export async function ask(question, { input = process.stdin, output = process.st
       output.write('  > ');
     }
   } else {
-    // Create a readline interface over the stream
-    const rl = createInterface({ input, output, terminal: false });
+    // Use shared or new readline interface
+    const rl = sharedRl || createInterface({ input, output, terminal: false });
 
     for await (const raw of rl) {
       const line = raw.trim();
@@ -35,7 +36,7 @@ export async function ask(question, { input = process.stdin, output = process.st
       output.write('  > ');
     }
 
-    rl.close();
+    if (!sharedRl) rl.close();
   }
 
   return result.join('\n');

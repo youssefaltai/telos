@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { createInterface } from 'node:readline';
 import { ask, readAllLines } from './prompt.js';
 import { generateIntent } from './generate-intent.js';
 import { writeProject } from './write-project.js';
@@ -20,9 +21,16 @@ export async function init(targetDir, { input, output } = {}) {
     return false;
   }
 
-  // Pre-read all input lines so we can share them across multiple ask() calls
-  const lines = await readAllLines(inp);
-  const opts = { output: out, lines };
+  // For piped/test input: pre-buffer all lines (stream is finite)
+  // For interactive input: share a single readline interface across calls
+  let opts;
+  if (input) {
+    const lines = await readAllLines(inp);
+    opts = { output: out, lines };
+  } else {
+    const rl = createInterface({ input: inp, output: out, terminal: false });
+    opts = { output: out, rl };
+  }
 
   // Question 1: What are you building? (required)
   const building = await ask('What are you building?', opts);
@@ -48,4 +56,6 @@ export async function init(targetDir, { input, output } = {}) {
   out.write('\n  \u2713 Agentix initialized.\n\n');
   out.write('  Your intent is in INTENT.md \u2014 edit it anytime.\n');
   out.write('  Open Claude Code and say: Read CLAUDE.md and begin.\n\n');
+
+  if (opts.rl) opts.rl.close();
 }
