@@ -65,14 +65,8 @@ describe('telos init (integration)', () => {
 
     assert.ok(fs.existsSync(path.join(tmpDir, 'INTENT.md')));
     assert.ok(fs.existsSync(path.join(tmpDir, 'CLAUDE.md')));
-    assert.ok(fs.existsSync(path.join(tmpDir, 'CONSTITUTION.md')));
-    assert.ok(fs.existsSync(path.join(tmpDir, 'PHILOSOPHY.md')));
+    assert.ok(fs.existsSync(path.join(tmpDir, '.claude', 'agents', 'meta-agent.md')));
     assert.ok(fs.existsSync(path.join(tmpDir, '.gitignore')));
-    assert.ok(fs.existsSync(path.join(tmpDir, 'bootstrap', 'meta-agent.md')));
-    assert.ok(fs.existsSync(path.join(tmpDir, 'agents', 'core.md')));
-    assert.ok(fs.existsSync(path.join(tmpDir, 'checkpoints', '.gitkeep')));
-    assert.ok(fs.existsSync(path.join(tmpDir, 'logs', '.gitkeep')));
-    assert.ok(fs.existsSync(path.join(tmpDir, 'memory', '.gitkeep')));
 
     const intent = fs.readFileSync(path.join(tmpDir, 'INTENT.md'), 'utf8');
     assert.ok(intent.includes('A REST API for task management'));
