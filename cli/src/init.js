@@ -56,5 +56,5 @@ export async function init(targetDir) {
   writeProject(targetDir, intentContent);
 
   clack.log.success('Telos initialized.');
-  clack.outro('Your intent is in INTENT.md — open Claude Code and say: Read CLAUDE.md and begin.');
+  clack.outro('Your intent is in INTENT.md — open Claude Code and say: begin.');
 }
