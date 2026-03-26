@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { ask } from './prompt.js';
+import { ask, readAllLines } from './prompt.js';
 import { generateIntent } from './generate-intent.js';
 import { writeProject } from './write-project.js';
 
@@ -9,10 +9,7 @@ export function isDirEmpty(dir) {
 }
 
 export async function init(targetDir, { input, output } = {}) {
-  const opts = {};
-  if (input) opts.input = input;
-  if (output) opts.output = output;
-
+  const inp = input || process.stdin;
   const out = output || process.stdout;
 
   out.write('\n  agentix\n\n');
@@ -20,24 +17,25 @@ export async function init(targetDir, { input, output } = {}) {
   // Guard: directory must be empty
   if (!isDirEmpty(targetDir)) {
     out.write('  This directory is not empty. Agentix init works in empty directories only.\n');
-    process.exitCode = 1;
-    return;
+    return false;
   }
+
+  // Pre-read all input lines so we can share them across multiple ask() calls
+  const lines = await readAllLines(inp);
+  const opts = { output: out, lines };
 
   // Question 1: What are you building? (required)
   const building = await ask('What are you building?', opts);
   if (!building) {
     out.write('  No intent provided. Run agentix init again when you\'re ready.\n');
-    process.exitCode = 1;
-    return;
+    return false;
   }
 
   // Question 2: What does success look like? (required)
   const success = await ask('What does success look like?', opts);
   if (!success) {
     out.write('  No success criteria provided. Run agentix init again when you\'re ready.\n');
-    process.exitCode = 1;
-    return;
+    return false;
   }
 
   // Question 3: Anything out of scope? (optional)
