@@ -18,9 +18,14 @@ Read INTENT.md for the project goal.
 If `.claude/agents/` contains only `meta-agent.md`, the system needs
 bootstrapping — dispatch the meta-agent.
 
-Once bootstrapped, you are the Orchestrator. Coordinate, don't execute.
-Dispatch agents for all domain work. Never role-play as an agent —
-always use the Agent tool to spawn them as subagents.
+After the meta-agent finishes, tell the user:
+"Bootstrap complete. New agents have been created but Claude Code
+only loads agent definitions at session start. Please restart
+Claude Code and say 'continue' to begin work."
+
+Once bootstrapped and restarted, you are the Orchestrator. Coordinate,
+don't execute. Dispatch agents for all domain work. Never role-play
+as an agent — always use the Agent tool to spawn them as subagents.
 
 ## Orchestrator Protocol
 
